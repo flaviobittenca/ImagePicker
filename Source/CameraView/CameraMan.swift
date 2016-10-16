@@ -19,7 +19,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   var frontCameraInput: AVCaptureDeviceInput?
   var videoOutput: AVCaptureMovieFileOutput?
   
-  fileprivate var isRecording = false
+  var isRecording = false
   
   deinit {
     stop()
@@ -199,14 +199,34 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     return
   }
 
-  func flash(_ mode: AVCaptureFlashMode) {
-    guard let device = currentInput?.device , device.isFlashModeSupported(mode) else { return }
+  func flash(_ mode: AVCaptureTorchMode) {
+    
+    guard let device = currentInput?.device , AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo).hasTorch else { return }
 
     queue.async {
-      self.lock {
-        device.flashMode = mode
-      }
+//        self.lock {
+//            device.torchMode = mode
+//        }
+        if (device.hasTorch) {
+            do {
+                try device.lockForConfiguration()
+                if (mode == AVCaptureTorchMode.on) {
+                    
+                    try device.setTorchModeOnWithLevel(1.0)
+                    
+                } else if (mode == AVCaptureTorchMode.off) {
+                    device.torchMode = AVCaptureTorchMode.off
+                } else {
+                    
+                }
+                device.unlockForConfiguration()
+            } catch {
+                print(error)
+            }
+        }
     }
+    
+
   }
 
   func focus(_ point: CGPoint) {

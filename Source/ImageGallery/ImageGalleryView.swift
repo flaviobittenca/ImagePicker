@@ -202,6 +202,7 @@ extension ImageGalleryView: UICollectionViewDelegate {
     guard let cell = collectionView.cellForItem(at: indexPath)
       as? ImageGalleryViewCell else { return }
 
+    self.imageLimit = 1
     let asset = assets[(indexPath as NSIndexPath).row]
 
     AssetManager.resolveAsset(asset, size: CGSize(width: 100, height: 100)) { image in

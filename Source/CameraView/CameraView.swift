@@ -90,6 +90,7 @@ class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate
   weak var delegate: CameraViewDelegate?
   var animationTimer: Timer?
   var locationManager: LocationManager?
+  var flashCameraState : AVCaptureTorchMode = .auto
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -182,12 +183,15 @@ class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate
   }
 
   func flashCamera(_ title: String) {
-    let mapping: [String: AVCaptureFlashMode] = [
+    let mapping: [String: AVCaptureTorchMode] = [
       "ON": .on,
       "OFF": .off
     ]
-
-    cameraMan.flash(mapping[title] ?? .auto)
+    
+    flashCameraState = mapping[title] ?? .auto
+    if cameraMan.isRecording {
+        cameraMan.flash(flashCameraState ?? .auto)
+    }
   }
 
   func takePicture(_ completion: @escaping () -> ()) {
@@ -201,6 +205,12 @@ class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate
         }) 
     })
 
+    if !cameraMan.isRecording {
+        cameraMan.flash(flashCameraState ?? .auto)
+    } else {
+        cameraMan.flash(.off)
+    }
+    
     cameraMan.takePhoto(previewLayer, location: locationManager?.latestLocation) {
       completion()
       self.delegate?.imageToLibrary()

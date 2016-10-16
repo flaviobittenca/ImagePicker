@@ -13,7 +13,7 @@ open class ImagePickerController: UIViewController {
 
   struct GestureConstants {
     static let maximumHeight: CGFloat = 200
-    static let minimumHeight: CGFloat = 125
+    static let minimumHeight: CGFloat = 200 //125
     static let velocity: CGFloat = 100
   }
 
@@ -114,26 +114,28 @@ open class ImagePickerController: UIViewController {
 
     statusBarHidden = UIApplication.shared.isStatusBarHidden
     UIApplication.shared.setStatusBarHidden(true, with: .fade)
-  }
-
-  open override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-
+    
     let galleryHeight: CGFloat = UIScreen.main.nativeBounds.height == 960
-      ? ImageGalleryView.Dimensions.galleryBarHeight : GestureConstants.minimumHeight
-
+        ? ImageGalleryView.Dimensions.galleryBarHeight : GestureConstants.minimumHeight
+    
     galleryView.collectionView.transform = CGAffineTransform.identity
     galleryView.collectionView.contentInset = UIEdgeInsets.zero
-
+    
     galleryView.frame = CGRect(x: 0,
                                y: totalSize.height - bottomContainer.frame.height - galleryHeight,
                                width: totalSize.width,
                                height: galleryHeight)
     galleryView.updateFrames()
     checkStatus()
-
+    
     initialFrame = galleryView.frame
     initialContentOffset = galleryView.collectionView.contentOffset
+  }
+
+  open override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+
+
   }
 
   open override func viewWillDisappear(_ animated: Bool) {
@@ -366,20 +368,20 @@ extension ImagePickerController: CameraViewDelegate {
   }
 
   func imageToLibrary() {
-    guard let collectionSize = galleryView.collectionSize else { return }
-
-    galleryView.fetchPhotos() {
-      guard let asset = self.galleryView.assets.first else { return }
-      self.stack.pushAsset(asset)
-    }
-    galleryView.shouldTransform = true
+//    guard let collectionSize = galleryView.collectionSize else { return }
+//
+//    galleryView.fetchPhotos() {
+//      guard let asset = self.galleryView.assets.first else { return }
+//      self.stack.pushAsset(asset)
+//    }
+//    galleryView.shouldTransform = true
     bottomContainer.pickerButton.isEnabled = true
-
-    UIView.animate(withDuration: 0.3, animations: {
-      self.galleryView.collectionView.transform = CGAffineTransform(translationX: collectionSize.width, y: 0)
-      }, completion: { _ in
-        self.galleryView.collectionView.transform = CGAffineTransform.identity
-    }) 
+//
+//    UIView.animate(withDuration: 0.3, animations: {
+//      self.galleryView.collectionView.transform = CGAffineTransform(translationX: collectionSize.width, y: 0)
+//      }, completion: { _ in
+//        self.galleryView.collectionView.transform = CGAffineTransform.identity
+//    }) 
   }
 
   func cameraNotAvailable() {

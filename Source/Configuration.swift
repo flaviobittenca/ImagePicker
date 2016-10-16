@@ -39,7 +39,7 @@ public struct Configuration {
   // MARK: Custom behaviour
 
   public static var canRotateCamera = true
-  public static var collapseCollectionViewWhileShot = true
+  public static var collapseCollectionViewWhileShot = false
   public static var recordLocation = true
 
   // MARK: Images
