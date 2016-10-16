@@ -60,7 +60,7 @@ open class BottomContainerView: UIView {
     button.setTitle(Configuration.cancelButtonTitle, for: UIControlState())
     button.titleLabel?.font = Configuration.doneButton
     button.addTarget(self, action: #selector(doneButtonDidPress(_:)), for: .touchUpInside)
-
+    
     return button
     }()
 

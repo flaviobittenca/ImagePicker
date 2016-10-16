@@ -35,6 +35,10 @@ extension BottomContainerView {
         relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,
         multiplier: 1, constant: ImageStackView.Dimensions.imageSize))
     }
+    
+    addConstraint(NSLayoutConstraint(item: pickerButton, attribute: .bottom,
+                                     relatedBy: .equal, toItem: self, attribute: .bottom,
+                                     multiplier: 1, constant: -35))
 
     addConstraint(NSLayoutConstraint(item: doneButton, attribute: .centerY,
       relatedBy: .equal, toItem: self, attribute: .centerY,
@@ -131,7 +135,7 @@ extension ImagePickerController {
 
     view.addConstraint(NSLayoutConstraint(item: cameraController.view, attribute: .height,
       relatedBy: .equal, toItem: view, attribute: .height,
-      multiplier: 1, constant: -BottomContainerView.Dimensions.height))
+      multiplier: 1, constant: 0))
   }
 }
 

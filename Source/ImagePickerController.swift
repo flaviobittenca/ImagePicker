@@ -30,8 +30,10 @@ open class ImagePickerController: UIViewController {
   open lazy var bottomContainer: BottomContainerView = { [unowned self] in
     let view = BottomContainerView()
     view.backgroundColor = UIColor(red: 0.09, green: 0.11, blue: 0.13, alpha: 1)
+     view.backgroundColor = UIColor.clear
     view.delegate = self
-
+    view.doneButton.isHidden = true
+    view.topSeparator.isHidden = true
     return view
     }()
 
@@ -75,6 +77,7 @@ open class ImagePickerController: UIViewController {
   var initialContentOffset: CGPoint?
   var numberOfCells: Int?
   var statusBarHidden = true
+  var previousSize : CGFloat = GestureConstants.minimumHeight
 
   fileprivate var isTakingPicture = false
   open var doneButtonTitle: String? {
@@ -90,7 +93,7 @@ open class ImagePickerController: UIViewController {
   open override func viewDidLoad() {
     super.viewDidLoad()
 
-    for subview in [cameraController.view, galleryView, bottomContainer, topView] {
+    for subview in [cameraController.view, bottomContainer, galleryView, topView] {
       view.addSubview(subview!)
       subview?.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -126,7 +129,7 @@ open class ImagePickerController: UIViewController {
     galleryView.collectionView.contentInset = UIEdgeInsets.zero
 
     galleryView.frame = CGRect(x: 0,
-                               y: totalSize.height - bottomContainer.frame.height - galleryHeight,
+                               y: totalSize.height - galleryHeight,
                                width: totalSize.width,
                                height: galleryHeight)
     galleryView.updateFrames()
@@ -258,7 +261,12 @@ open class ImagePickerController: UIViewController {
   open func collapseGalleryView(_ completion: (() -> Void)?) {
     galleryView.collectionViewLayout.invalidateLayout()
     UIView.animate(withDuration: 0.3, animations: {
-      self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
+        if self.previousSize == GestureConstants.minimumHeight {
+            self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
+        } else {
+            self.updateGalleryViewFrames(GestureConstants.minimumHeight)
+        }
+
       self.galleryView.collectionView.transform = CGAffineTransform.identity
       self.galleryView.collectionView.contentInset = UIEdgeInsets.zero
       }, completion: { _ in
@@ -290,8 +298,9 @@ open class ImagePickerController: UIViewController {
   }
 
   func updateGalleryViewFrames(_ constant: CGFloat) {
-    galleryView.frame.origin.y = totalSize.height - bottomContainer.frame.height - constant
+    galleryView.frame.origin.y = totalSize.height - constant
     galleryView.frame.size.height = constant
+    previousSize = constant
   }
 
   func enableGestures(_ enabled: Bool) {
