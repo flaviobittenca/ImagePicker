@@ -8,5 +8,4 @@ target 'ImagePickerDemo' do
 	pod 'Lightbox', git: 'https://github.com/hyperoslo/Lightbox.git', branch: 'swift-3'
 	pod 'Sugar', git: 'https://github.com/hyperoslo/Sugar.git', branch: 'swift-3'
 	pod 'Hue', git: 'https://github.com/hyperoslo/Hue.git', branch: 'swift3'
-    pod 'KYShutterButton'
 end
