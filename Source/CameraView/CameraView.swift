@@ -9,7 +9,12 @@ protocol CameraViewDelegate: class {
   func cameraNotAvailable()
 }
 
-class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate {
+class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate  {
+  
+  internal func videoFinished(withFileURL fileURL: URL) {
+    
+  }
+
 
   lazy var blurView: UIVisualEffectView = { [unowned self] in
     let effect = UIBlurEffect(style: .dark)

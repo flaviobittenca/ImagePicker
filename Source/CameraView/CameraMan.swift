@@ -6,18 +6,21 @@ protocol CameraManDelegate: class {
   func cameraManNotAvailable(_ cameraMan: CameraMan)
   func cameraManDidStart(_ cameraMan: CameraMan)
   func cameraMan(_ cameraMan: CameraMan, didChangeInput input: AVCaptureDeviceInput)
+  func videoFinished(withFileURL fileURL: URL)
 }
 
-class CameraMan {
+class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   weak var delegate: CameraManDelegate?
 
   let session = AVCaptureSession()
   let queue = DispatchQueue(label: "no.hyper.ImagePicker.Camera.SessionQueue")
 
-  var backCamera: AVCaptureDeviceInput?
-  var frontCamera: AVCaptureDeviceInput?
-  var stillImageOutput: AVCaptureStillImageOutput?
-
+  var backCameraInput: AVCaptureDeviceInput?
+  var frontCameraInput: AVCaptureDeviceInput?
+  var videoOutput: AVCaptureMovieFileOutput?
+  
+  fileprivate var isRecording = false
+  
   deinit {
     stop()
   }
@@ -38,17 +41,23 @@ class CameraMan {
     }.forEach {
       switch $0.position {
       case .front:
-        self.frontCamera = try? AVCaptureDeviceInput(device: $0)
+        self.frontCameraInput = try? AVCaptureDeviceInput(device: $0)
       case .back:
-        self.backCamera = try? AVCaptureDeviceInput(device: $0)
+        self.backCameraInput = try? AVCaptureDeviceInput(device: $0)
       default:
         break
       }
     }
 
     // Output
-    stillImageOutput = AVCaptureStillImageOutput()
-    stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+    videoOutput = AVCaptureMovieFileOutput()
+    //    let totalSeconds = 60.0 //Total Seconds of capture time
+    //    let timeScale: Int32 = 30 //FPS
+    //
+    //    let maxDuration = CMTimeMakeWithSeconds(totalSeconds, timeScale)
+    
+    videoOutput?.maxRecordedDuration = kCMTimeInvalid
+    videoOutput?.minFreeDiskSpaceLimit = 1024 * 1024 //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
   }
 
   func addInput(_ input: AVCaptureDeviceInput) {
@@ -100,7 +109,7 @@ class CameraMan {
     // Devices
     setupDevices()
 
-    guard let input = backCamera, let output = stillImageOutput else { return }
+    guard let input = backCameraInput, let output = videoOutput else { return }
 
     addInput(input)
 
@@ -129,7 +138,7 @@ class CameraMan {
     }
 
     queue.async {
-      guard let input = (currentInput == self.backCamera) ? self.frontCamera : self.backCamera
+      guard let input = (currentInput == self.backCameraInput) ? self.frontCameraInput : self.backCameraInput
         else {
           DispatchQueue.main.async {
             completion?()
@@ -149,39 +158,44 @@ class CameraMan {
   }
 
   func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer, location: CLLocation?, completion: (() -> Void)? = nil) {
-    guard let connection = stillImageOutput?.connection(withMediaType: AVMediaTypeVideo) else { return }
-
-    connection.videoOrientation = Helper.videoOrientation()
-
-    queue.async {
-      self.stillImageOutput?.captureStillImageAsynchronously(from: connection) {
-        buffer, error in
-
-        guard let buffer = buffer, error == nil && CMSampleBufferIsValid(buffer),
-          let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(buffer),
-          let image = UIImage(data: imageData)
-          else {
-            DispatchQueue.main.async {
-              completion?()
-            }
-            return
-        }
-
-        self.savePhoto(image, location: location, completion: completion)
-      }
-    }
+    
+    self.toggleRecording()
+    return
   }
-
-  func savePhoto(_ image: UIImage, location: CLLocation?, completion: (() -> Void)? = nil) {
-    PHPhotoLibrary.shared().performChanges({
-      let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
-      request.creationDate = Date()
-      request.location = location
-      }, completionHandler: { _ in
-        DispatchQueue.main.async {
-          completion?()
+  
+  func stopCamera() {
+    if self.isRecording {
+      self.toggleRecording()
+    }
+    session.stopRunning()
+  }
+  
+  fileprivate func toggleRecording() {
+    guard let videoOutput = videoOutput else {
+      return
+    }
+    
+    self.isRecording = !self.isRecording
+    
+    if self.isRecording {
+      let outputPath = "\(NSTemporaryDirectory())output.mov"
+      let outputURL = URL(fileURLWithPath: outputPath)
+      
+      let fileManager = FileManager.default
+      if fileManager.fileExists(atPath: outputPath) {
+        do {
+          try fileManager.removeItem(atPath: outputPath)
+        } catch {
+          print("error removing item at path: \(outputPath)")
+          self.isRecording = false
+          return
         }
-    })
+      }
+      videoOutput.startRecording(toOutputFileURL: outputURL, recordingDelegate: self)
+    } else {
+      videoOutput.stopRecording()
+    }
+    return
   }
 
   func flash(_ mode: AVCaptureFlashMode) {
@@ -238,4 +252,18 @@ class CameraMan {
       AVCaptureSessionPresetLow
     ]
   }
+  
+  
+  // MARK: - VideoCapture
+  
+  func capture(_ captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAt fileURL: URL!, fromConnections connections: [Any]!) {
+    print("started recording to: \(fileURL)")
+  }
+  
+  func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
+    print("finished recording to: \(outputFileURL)")
+    self.delegate?.videoFinished(withFileURL: outputFileURL)
+  }
+  
 }
+

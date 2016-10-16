@@ -41,7 +41,7 @@ open class AssetManager {
     guard authorizationStatus == .authorized else { return }
 
     if fetchResult == nil {
-      fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      fetchResult = PHAsset.fetchAssets(with: .video, options: fetchOptions)
     }
 
     if fetchResult?.count > 0 {

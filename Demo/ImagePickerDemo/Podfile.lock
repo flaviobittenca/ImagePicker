@@ -1,6 +1,6 @@
 PODS:
   - Hue (1.2.0)
-  - ImagePicker (1.4.1)
+  - ImagePicker (2.0.0)
   - Lightbox (1.0.0):
     - Hue
     - Sugar
@@ -17,7 +17,7 @@ EXTERNAL SOURCES:
     :branch: swift3
     :git: https://github.com/hyperoslo/Hue.git
   ImagePicker:
-    :path: "../../"
+    :path: ../../
   Lightbox:
     :branch: swift-3
     :git: https://github.com/hyperoslo/Lightbox.git
@@ -38,7 +38,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Hue: 0705083b7aff40334033373e6293ec1215285ac2
-  ImagePicker: c2b43f5201f34efb3459ac6af39992fdd802c2d4
+  ImagePicker: 81175d36c2852cb543cb4f5d6c19e28f3e8d90eb
   Lightbox: 6deb5fc2c51f353212631470c4c689bc5120598c
   Sugar: 556b623f0f8846cf08de7302701892f11d567419
 
