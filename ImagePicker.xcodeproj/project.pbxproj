@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		39D134101CAC4B4E00EA2ECE /* AssetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39D1340F1CAC4B4E00EA2ECE /* AssetManager.swift */; };
 		39E3C3311CAFD79200340DAD /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E3C3301CAFD79200340DAD /* LocationManager.swift */; };
+		B5D79E651DB3566300677708 /* KYShutterButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D79E621DB3566300677708 /* KYShutterButton.swift */; };
+		B5D79E661DB3566300677708 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5D79E631DB3566300677708 /* Info.plist */; };
+		B5D79E671DB3566300677708 /* KYShutterButton.h in Headers */ = {isa = PBXBuildFile; fileRef = B5D79E641DB3566300677708 /* KYShutterButton.h */; };
 		D20FF6361CD23426000F3BFE /* CameraMan.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20FF6351CD23426000F3BFE /* CameraMan.swift */; };
 		D25A8C2C1D47681E0008D2F7 /* ImageGalleryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D25A8C2B1D47681E0008D2F7 /* ImageGalleryLayout.swift */; };
 		D25A8C2E1D4768250008D2F7 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D25A8C2D1D4768250008D2F7 /* Helper.swift */; };
@@ -47,6 +50,9 @@
 /* Begin PBXFileReference section */
 		39D1340F1CAC4B4E00EA2ECE /* AssetManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetManager.swift; sourceTree = "<group>"; };
 		39E3C3301CAFD79200340DAD /* LocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		B5D79E621DB3566300677708 /* KYShutterButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYShutterButton.swift; sourceTree = "<group>"; };
+		B5D79E631DB3566300677708 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B5D79E641DB3566300677708 /* KYShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KYShutterButton.h; sourceTree = "<group>"; };
 		D20FF6351CD23426000F3BFE /* CameraMan.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraMan.swift; sourceTree = "<group>"; };
 		D25A8C2B1D47681E0008D2F7 /* ImageGalleryLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageGalleryLayout.swift; sourceTree = "<group>"; };
 		D25A8C2D1D4768250008D2F7 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
@@ -94,6 +100,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B5D79E601DB3566300677708 /* KYShutterButton */ = {
+			isa = PBXGroup;
+			children = (
+				B5D79E611DB3566300677708 /* Classes */,
+				B5D79E631DB3566300677708 /* Info.plist */,
+				B5D79E641DB3566300677708 /* KYShutterButton.h */,
+			);
+			path = KYShutterButton;
+			sourceTree = "<group>";
+		};
+		B5D79E611DB3566300677708 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				B5D79E621DB3566300677708 /* KYShutterButton.swift */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
 		D5D370B91C44FD1600690C0A /* Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -149,6 +173,7 @@
 		D5DC59AA1C201CC4003BD79B /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				B5D79E601DB3566300677708 /* KYShutterButton */,
 				D25A8C2D1D4768250008D2F7 /* Helper.swift */,
 				D5DC59AC1C201CC4003BD79B /* BottomView */,
 				D5DC59B11C201CC4003BD79B /* CameraView */,
@@ -217,6 +242,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5D79E671DB3566300677708 /* KYShutterButton.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +301,9 @@
 						DevelopmentTeam = QQJ8AA32HJ;
 						LastSwiftMigration = 0800;
 					};
+					D5DC59941C201BE1003BD79B = {
+						DevelopmentTeam = QQJ8AA32HJ;
+					};
 				};
 			};
 			buildConfigurationList = D5DC59851C201BE1003BD79B /* Build configuration list for PBXProject "ImagePicker" */;
@@ -306,6 +335,7 @@
 				D5D370C51C44FD1600690C0A /* selectedImageGallery@3x.png in Resources */,
 				D5D370C11C44FD1600690C0A /* cameraIcon@3x.png in Resources */,
 				D5D370C31C44FD1600690C0A /* OFF@3x.png in Resources */,
+				B5D79E661DB3566300677708 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -342,6 +372,7 @@
 				D5DC59CE1C201CC4003BD79B /* TopView.swift in Sources */,
 				D5DC59C41C201CC4003BD79B /* ImageStack.swift in Sources */,
 				39E3C3311CAFD79200340DAD /* LocationManager.swift in Sources */,
+				B5D79E651DB3566300677708 /* KYShutterButton.swift in Sources */,
 				D5DC59CB1C201CC4003BD79B /* ImageGalleryViewDataSource.swift in Sources */,
 				D25A8C2C1D47681E0008D2F7 /* ImageGalleryLayout.swift in Sources */,
 				D5DC59CA1C201CC4003BD79B /* ImageGalleryViewCell.swift in Sources */,

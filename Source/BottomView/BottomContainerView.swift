@@ -14,13 +14,36 @@ open class BottomContainerView: UIView {
     static let height: CGFloat = 101
   }
 
-  lazy var pickerButton: ButtonPicker = { [unowned self] in
-    let pickerButton = ButtonPicker()
-    pickerButton.setTitleColor(UIColor.white, for: UIControlState())
-    pickerButton.delegate = self
-
+  lazy var pickerButton: KYShutterButton = { [unowned self] in
+    let pickerButton = KYShutterButton(
+      frame: CGRect(x: 20, y: 20, width: 100, height: 100),
+      shutterType: .normal,
+      buttonColor: UIColor.red
+    )
+    
+    pickerButton.addTarget(self,
+                           action:#selector(buttonDidPress(sender:)),
+                           for: .touchUpInside
+    )
+    /* Custom
+     shutterButton.arcColor      = UIColor.greenColor()
+     shutterButton.progressColor = UIColor.yellowColor()
+     */
+    
     return pickerButton
     }()
+
+  
+  func buttonDidPress(sender: KYShutterButton) {
+    switch sender.buttonState {
+    case .normal:
+      sender.buttonState = .recording
+    case .recording:
+      sender.buttonState = .normal
+    }
+ 
+    delegate?.pickerButtonDidPress()
+  }
 
   lazy var borderPickerButton: UIView = {
     let view = UIView()
@@ -64,7 +87,7 @@ open class BottomContainerView: UIView {
 
   public override init(frame: CGRect) {
     super.init(frame: frame)
-
+    
     [borderPickerButton, pickerButton, doneButton, stackView, topSeparator].forEach {
       addSubview($0)
       $0.translatesAutoresizingMaskIntoConstraints = false
@@ -73,6 +96,8 @@ open class BottomContainerView: UIView {
     backgroundColor = Configuration.backgroundColor
     stackView.accessibilityLabel = "Image stack"
     stackView.addGestureRecognizer(tapGestureRecognizer)
+    borderPickerButton.isHidden = true
+    stackView.isHidden = true
 
     setupConstraints()
   }

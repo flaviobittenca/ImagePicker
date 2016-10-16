@@ -1,6 +1,7 @@
 PODS:
   - Hue (1.2.0)
   - ImagePicker (2.0.0)
+  - KYShutterButton (2.0.0)
   - Lightbox (1.0.0):
     - Hue
     - Sugar
@@ -9,6 +10,7 @@ PODS:
 DEPENDENCIES:
   - Hue (from `https://github.com/hyperoslo/Hue.git`, branch `swift3`)
   - ImagePicker (from `../../`)
+  - KYShutterButton
   - Lightbox (from `https://github.com/hyperoslo/Lightbox.git`, branch `swift-3`)
   - Sugar (from `https://github.com/hyperoslo/Sugar.git`, branch `swift-3`)
 
@@ -39,9 +41,10 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Hue: 0705083b7aff40334033373e6293ec1215285ac2
   ImagePicker: 81175d36c2852cb543cb4f5d6c19e28f3e8d90eb
+  KYShutterButton: 49a1b1d34364eda9fda7d10cfe1ecf0bb756d18e
   Lightbox: 6deb5fc2c51f353212631470c4c689bc5120598c
   Sugar: 556b623f0f8846cf08de7302701892f11d567419
 
-PODFILE CHECKSUM: 862923f408ecd3189d99edd15056d3971d80db4c
+PODFILE CHECKSUM: 431b936350ccd5c87c052a970bb81a5e61e5a3c3
 
 COCOAPODS: 1.1.0.rc.2

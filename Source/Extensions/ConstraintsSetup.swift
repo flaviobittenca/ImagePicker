@@ -100,39 +100,38 @@ extension TopView {
 extension ImagePickerController {
 
   func setupConstraints() {
-//    let attributes: [NSLayoutAttribute] = [.bottom, .right, .width]
+    let attributes: [NSLayoutAttribute] = [.bottom, .right, .width]
     let topViewAttributes: [NSLayoutAttribute] = [.left, .top, .width]
 
-//    for attribute in attributes {
-//      view.addConstraint(NSLayoutConstraint(item: bottomContainer, attribute: attribute,
-//        relatedBy: .equal, toItem: view, attribute: attribute,
-//        multiplier: 1, constant: 0))
-//    }
+    for attribute in attributes {
+      view.addConstraint(NSLayoutConstraint(item: bottomContainer, attribute: attribute,
+        relatedBy: .equal, toItem: view, attribute: attribute,
+        multiplier: 1, constant: 0))
+    }
 
-    for attribute: NSLayoutAttribute in [.top, .leading, .bottom, .trailing] {
+    for attribute: NSLayoutAttribute in [.left, .top, .width] {
       view.addConstraint(NSLayoutConstraint(item: cameraController.view, attribute: attribute,
         relatedBy: .equal, toItem: view, attribute: attribute,
         multiplier: 1, constant: 0))
     }
-    
-    
+
     for attribute in topViewAttributes {
       view.addConstraint(NSLayoutConstraint(item: topView, attribute: attribute,
         relatedBy: .equal, toItem: self.view, attribute: attribute,
         multiplier: 1, constant: 0))
     }
 
-//    view.addConstraint(NSLayoutConstraint(item: bottomContainer, attribute: .height,
-//      relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,
-//      multiplier: 1, constant: BottomContainerView.Dimensions.height))
+    view.addConstraint(NSLayoutConstraint(item: bottomContainer, attribute: .height,
+      relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,
+      multiplier: 1, constant: BottomContainerView.Dimensions.height))
 
     view.addConstraint(NSLayoutConstraint(item: topView, attribute: .height,
       relatedBy: .equal, toItem: nil, attribute: .notAnAttribute,
       multiplier: 1, constant: TopView.Dimensions.height))
 
-//    view.addConstraint(NSLayoutConstraint(item: cameraController.view, attribute: .height,
-//      relatedBy: .equal, toItem: view, attribute: .height,
-//      multiplier: 1, constant: -BottomContainerView.Dimensions.height))
+    view.addConstraint(NSLayoutConstraint(item: cameraController.view, attribute: .height,
+      relatedBy: .equal, toItem: view, attribute: .height,
+      multiplier: 1, constant: -BottomContainerView.Dimensions.height))
   }
 }
 
