@@ -160,6 +160,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer, location: CLLocation?, completion: (() -> Void)? = nil) {
     
     self.toggleRecording()
+    completion?()
     return
   }
   
