@@ -7,6 +7,8 @@ import Photos
   func wrapperDidPress(_ imagePicker: ImagePickerController, images: [UIImage])
   func doneButtonDidPress(_ imagePicker: ImagePickerController, images: [UIImage])
   func cancelButtonDidPress(_ imagePicker: ImagePickerController)
+  func galleryViewDidCollapse()
+  func galleryViewDidExpand()
 }
 
 open class ImagePickerController: UIViewController {
@@ -272,6 +274,7 @@ open class ImagePickerController: UIViewController {
       self.galleryView.collectionView.transform = CGAffineTransform.identity
       self.galleryView.collectionView.contentInset = UIEdgeInsets.zero
       }, completion: { _ in
+        self.delegate?.galleryViewDidCollapse()
         completion?()
     }) 
   }
@@ -296,6 +299,8 @@ open class ImagePickerController: UIViewController {
 
       let value = self.view.frame.width * (scale - 1) / scale
       self.galleryView.collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right:  value)
+      }, completion: { _ in
+        self.delegate?.galleryViewDidExpand()
     })
   }
 
