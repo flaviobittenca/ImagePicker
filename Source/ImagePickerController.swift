@@ -72,7 +72,7 @@ open class ImagePickerController: UIViewController {
   open var stack = ImageStack()
   open var imageLimit = 0
   open var preferredImageSize: CGSize?
-  var totalSize: CGSize { return UIScreen.main.bounds.size }
+  var totalSize: CGSize { return CGSize(width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height - 64.0) }
   var initialFrame: CGRect?
   var initialContentOffset: CGPoint?
   var numberOfCells: Int?
