@@ -116,7 +116,7 @@ open class ImagePickerController: UIViewController {
     _ = try? AVAudioSession.sharedInstance().setActive(true)
 
     statusBarHidden = UIApplication.shared.isStatusBarHidden
-    UIApplication.shared.setStatusBarHidden(true, with: .fade)
+    //UIApplication.shared.setStatusBarHidden(true, with: .fade)
     
     let galleryHeight: CGFloat = UIScreen.main.nativeBounds.height == 960
         ? ImageGalleryView.Dimensions.galleryBarHeight : GestureConstants.minimumHeight
