@@ -285,6 +285,8 @@ open class ImagePickerController: UIViewController {
       self.updateGalleryViewFrames(GestureConstants.minimumHeight)
       self.galleryView.collectionView.transform = CGAffineTransform.identity
       self.galleryView.collectionView.contentInset = UIEdgeInsets.zero
+      }, completion: { _ in
+        self.delegate?.galleryViewDidExpand()
     })
   }
 
