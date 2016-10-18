@@ -17,6 +17,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   
   var backCameraInput: AVCaptureDeviceInput?
   var frontCameraInput: AVCaptureDeviceInput?
+  var audioInput: AVCaptureDeviceInput?
   var videoOutput: AVCaptureMovieFileOutput?
   
   var isRecording = false
@@ -48,6 +49,13 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
         default:
           break
         }
+    }
+    
+    if let audioDevice = AVCaptureDevice.devices(withMediaType: AVMediaTypeAudio).first as? AVCaptureDevice {
+      audioInput = try? AVCaptureDeviceInput(device: audioDevice)
+      //        if session.canAddInput(audioDeviceInput) ?? false {
+      //            session.addInput(audioDeviceInput)
+      //        }
     }
     
     // Output
@@ -92,11 +100,24 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo) { granted in
       DispatchQueue.main.async {
         if granted {
-          self.start()
+          self.checkPermissionAudio()
         } else {
           self.delegate?.cameraManNotAvailable(self)
         }
       }
+    }
+  }
+  
+  func checkPermissionAudio() {
+    let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeAudio)
+    
+    switch status {
+    case .authorized:
+      start()
+    case .notDetermined:
+      requestPermission()
+    default:
+      delegate?.cameraManNotAvailable(self)
     }
   }
   
@@ -113,6 +134,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     guard let input = backCameraInput, let output = videoOutput else { return }
     
     addInput(input)
+    addInput(audioInput!)
     
     if session.canAddOutput(output) {
       session.addOutput(output)

@@ -102,8 +102,8 @@ open class ImagePickerController: UIViewController {
       subview?.translatesAutoresizingMaskIntoConstraints = false
     }
     
-    view.addSubview(volumeView)
-    view.sendSubview(toBack: volumeView)
+    //view.addSubview(volumeView)
+    //view.sendSubview(toBack: volumeView)
     
     view.backgroundColor = UIColor.white
     view.backgroundColor = Configuration.mainColor
@@ -225,10 +225,10 @@ open class ImagePickerController: UIViewController {
                                            name: NSNotification.Name(rawValue: ImageStack.Notifications.stackDidReload),
                                            object: nil)
     
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(volumeChanged(_:)),
-                                           name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
-                                           object: nil)
+    //    NotificationCenter.default.addObserver(self,
+    //                                           selector: #selector(volumeChanged(_:)),
+    //                                           name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
+    //                                           object: nil)
     
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(handleRotation(_:)),
