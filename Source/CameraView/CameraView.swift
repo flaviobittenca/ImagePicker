@@ -173,15 +173,17 @@ class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate
   // MARK: - Camera actions
   
   func rotateCamera() {
-    UIView.animate(withDuration: 0.3, animations: { _ in
-      self.containerView.alpha = 1
-      }, completion: { _ in
-        self.cameraMan.switchCamera {
-          UIView.animate(withDuration: 0.7, animations: {
-            self.containerView.alpha = 0
-          })
-        }
-    })
+    if !cameraMan.isRecording {
+      UIView.animate(withDuration: 0.3, animations: { _ in
+        self.containerView.alpha = 1
+        }, completion: { _ in
+          self.cameraMan.switchCamera {
+            UIView.animate(withDuration: 0.7, animations: {
+              self.containerView.alpha = 0
+            })
+          }
+      })
+    }
   }
   
   func flashCamera(_ title: String) {

@@ -376,6 +376,7 @@ open class ImagePickerController: UIViewController {
     let action: (Void) -> Void = { [unowned self] in
       self.enableGalleryGestures(self.recordingVideo)
       self.recordingVideo = !self.recordingVideo
+      self.topView.rotateCamera.isEnabled = !self.recordingVideo
       self.cameraController.takePicture { self.isTakingPicture = false }
     }
     
