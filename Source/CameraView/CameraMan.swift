@@ -11,44 +11,45 @@ protocol CameraManDelegate: class {
 
 class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   weak var delegate: CameraManDelegate?
-
+  
   let session = AVCaptureSession()
   let queue = DispatchQueue(label: "no.hyper.ImagePicker.Camera.SessionQueue")
-
+  
   var backCameraInput: AVCaptureDeviceInput?
   var frontCameraInput: AVCaptureDeviceInput?
   var videoOutput: AVCaptureMovieFileOutput?
   
   var isRecording = false
+  var isRecordingCanceled = false
   
   deinit {
     stop()
   }
-
+  
   // MARK: - Setup
-
+  
   func setup() {
     checkPermission()
   }
-
+  
   func setupDevices() {
     // Input
     AVCaptureDevice
-    .devices().flatMap {
-      return $0 as? AVCaptureDevice
-    }.filter {
-      return $0.hasMediaType(AVMediaTypeVideo)
-    }.forEach {
-      switch $0.position {
-      case .front:
-        self.frontCameraInput = try? AVCaptureDeviceInput(device: $0)
-      case .back:
-        self.backCameraInput = try? AVCaptureDeviceInput(device: $0)
-      default:
-        break
-      }
+      .devices().flatMap {
+        return $0 as? AVCaptureDevice
+      }.filter {
+        return $0.hasMediaType(AVMediaTypeVideo)
+      }.forEach {
+        switch $0.position {
+        case .front:
+          self.frontCameraInput = try? AVCaptureDeviceInput(device: $0)
+        case .back:
+          self.backCameraInput = try? AVCaptureDeviceInput(device: $0)
+        default:
+          break
+        }
     }
-
+    
     // Output
     videoOutput = AVCaptureMovieFileOutput()
     //    let totalSeconds = 60.0 //Total Seconds of capture time
@@ -59,24 +60,24 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     videoOutput?.maxRecordedDuration = kCMTimeInvalid
     videoOutput?.minFreeDiskSpaceLimit = 1024 * 1024 //SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
   }
-
+  
   func addInput(_ input: AVCaptureDeviceInput) {
     configurePreset(input)
-
+    
     if session.canAddInput(input) {
       session.addInput(input)
-
+      
       DispatchQueue.main.async {
         self.delegate?.cameraMan(self, didChangeInput: input)
       }
     }
   }
-
+  
   // MARK: - Permission
-
+  
   func checkPermission() {
     let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo)
-
+    
     switch status {
     case .authorized:
       start()
@@ -86,7 +87,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
       delegate?.cameraManNotAvailable(self)
     }
   }
-
+  
   func requestPermission() {
     AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo) { granted in
       DispatchQueue.main.async {
@@ -98,45 +99,45 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
       }
     }
   }
-
+  
   // MARK: - Session
-
+  
   var currentInput: AVCaptureDeviceInput? {
     return session.inputs.first as? AVCaptureDeviceInput
   }
-
+  
   fileprivate func start() {
     // Devices
     setupDevices()
-
+    
     guard let input = backCameraInput, let output = videoOutput else { return }
-
+    
     addInput(input)
-
+    
     if session.canAddOutput(output) {
       session.addOutput(output)
     }
-
+    
     queue.async {
       self.session.startRunning()
-
+      
       DispatchQueue.main.async {
         self.delegate?.cameraManDidStart(self)
       }
     }
   }
-
+  
   func stop() {
     self.session.stopRunning()
   }
-
+  
   func switchCamera(_ completion: (() -> Void)? = nil) {
     guard let currentInput = currentInput
       else {
         completion?()
         return
     }
-
+    
     queue.async {
       guard let input = (currentInput == self.backCameraInput) ? self.frontCameraInput : self.backCameraInput
         else {
@@ -145,18 +146,18 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
           }
           return
       }
-
+      
       self.configure {
         self.session.removeInput(currentInput)
         self.addInput(input)
       }
-
+      
       DispatchQueue.main.async {
         completion?()
       }
     }
   }
-
+  
   func takePhoto(_ previewLayer: AVCaptureVideoPreviewLayer, location: CLLocation?, completion: (() -> Void)? = nil) {
     
     self.toggleRecording()
@@ -198,65 +199,76 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     }
     return
   }
-
+  
+  open func cancelRecording() {
+    guard let videoOutput = videoOutput else {
+      return
+    }
+    
+    if self.isRecording {
+      isRecordingCanceled = true
+      videoOutput.stopRecording()
+    }
+  }
+  
   func flash(_ mode: AVCaptureTorchMode) {
     
     guard let device = currentInput?.device , AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo).hasTorch else { return }
-
+    
     queue.async {
-//        self.lock {
-//            device.torchMode = mode
-//        }
-        if (device.hasTorch) {
-            do {
-                try device.lockForConfiguration()
-                if (mode == AVCaptureTorchMode.on) {
-                    
-                    try device.setTorchModeOnWithLevel(1.0)
-                    
-                } else if (mode == AVCaptureTorchMode.off) {
-                    device.torchMode = AVCaptureTorchMode.off
-                } else {
-                    
-                }
-                device.unlockForConfiguration()
-            } catch {
-                print(error)
-            }
+      //        self.lock {
+      //            device.torchMode = mode
+      //        }
+      if (device.hasTorch) {
+        do {
+          try device.lockForConfiguration()
+          if (mode == AVCaptureTorchMode.on) {
+            
+            try device.setTorchModeOnWithLevel(1.0)
+            
+          } else if (mode == AVCaptureTorchMode.off) {
+            device.torchMode = AVCaptureTorchMode.off
+          } else {
+            
+          }
+          device.unlockForConfiguration()
+        } catch {
+          print(error)
         }
+      }
     }
     
-
+    
   }
-
+  
   func focus(_ point: CGPoint) {
     guard let device = currentInput?.device , device.isFocusModeSupported(AVCaptureFocusMode.locked) else { return }
-
+    
     queue.async {
       self.lock {
         device.focusPointOfInterest = point
       }
     }
   }
-
+  
   // MARK: - Lock
-
+  
   func lock(_ block: () -> Void) {
     if let device = currentInput?.device , (try? device.lockForConfiguration()) != nil {
       block()
       device.unlockForConfiguration()
     }
   }
-
+  
   // MARK: - Configure
   func configure(_ block: () -> Void) {
     session.beginConfiguration()
     block()
     session.commitConfiguration()
   }
-
+  
   // MARK: - Preset
-
+  
   func configurePreset(_ input: AVCaptureDeviceInput) {
     for asset in preferredPresets() {
       if input.device.supportsAVCaptureSessionPreset(asset) && self.session.canSetSessionPreset(asset) {
@@ -265,7 +277,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
       }
     }
   }
-
+  
   func preferredPresets() -> [String] {
     return [
       AVCaptureSessionPresetHigh,
@@ -283,7 +295,17 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   
   func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!) {
     print("finished recording to: \(outputFileURL)")
-    self.delegate?.videoFinished(withFileURL: outputFileURL)
+    if !self.isRecordingCanceled {
+      self.delegate?.videoFinished(withFileURL: outputFileURL)
+    } else {
+      let fileManager = FileManager.default
+      do {
+        try fileManager.removeItem(atPath: NSTemporaryDirectory() + "output.mov")
+      } catch let error as NSError {
+        print(error.debugDescription)
+      }
+    }
+    
   }
   
 }
