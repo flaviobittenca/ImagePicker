@@ -169,117 +169,117 @@ open class ImagePickerController: UIViewController {
       }
     }
   }
-
+  
   func presentAskPermissionAlert() {
     let alertController = UIAlertController(title: Configuration.requestPermissionTitle, message: Configuration.requestPermissionMessage, preferredStyle: .alert)
-
+    
     let alertAction = UIAlertAction(title: Configuration.OKButtonTitle, style: .default) { _ in
       if let settingsURL = URL(string: UIApplicationOpenSettingsURLString) {
         UIApplication.shared.openURL(settingsURL)
       }
     }
-
+    
     let cancelAction = UIAlertAction(title: Configuration.cancelButtonTitle, style: .cancel) { _ in
       self.dismiss(animated: true, completion: nil)
     }
-
+    
     alertController.addAction(alertAction)
     alertController.addAction(cancelAction)
-
+    
     present(alertController, animated: true, completion: nil)
   }
-
+  
   func hideViews() {
     enableGestures(false)
   }
-
+  
   func permissionGranted() {
     galleryView.fetchPhotos()
     galleryView.canFetchImages = false
     enableGestures(true)
   }
-
+  
   // MARK: - Notifications
-
+  
   deinit {
     _ = try? AVAudioSession.sharedInstance().setActive(false)
     NotificationCenter.default.removeObserver(self)
   }
-
+  
   func subscribe() {
     NotificationCenter.default.addObserver(self,
-      selector: #selector(adjustButtonTitle(_:)),
-      name: NSNotification.Name(rawValue: ImageStack.Notifications.imageDidPush),
-      object: nil)
-
+                                           selector: #selector(adjustButtonTitle(_:)),
+                                           name: NSNotification.Name(rawValue: ImageStack.Notifications.imageDidPush),
+                                           object: nil)
+    
     NotificationCenter.default.addObserver(self,
-      selector: #selector(adjustButtonTitle(_:)),
-      name: NSNotification.Name(rawValue: ImageStack.Notifications.imageDidDrop),
-      object: nil)
-
+                                           selector: #selector(adjustButtonTitle(_:)),
+                                           name: NSNotification.Name(rawValue: ImageStack.Notifications.imageDidDrop),
+                                           object: nil)
+    
     NotificationCenter.default.addObserver(self,
-      selector: #selector(didReloadAssets(_:)),
-      name: NSNotification.Name(rawValue: ImageStack.Notifications.stackDidReload),
-      object: nil)
-
+                                           selector: #selector(didReloadAssets(_:)),
+                                           name: NSNotification.Name(rawValue: ImageStack.Notifications.stackDidReload),
+                                           object: nil)
+    
     NotificationCenter.default.addObserver(self,
-      selector: #selector(volumeChanged(_:)),
-      name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
-      object: nil)
-
+                                           selector: #selector(volumeChanged(_:)),
+                                           name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"),
+                                           object: nil)
+    
     NotificationCenter.default.addObserver(self,
-      selector: #selector(handleRotation(_:)),
-      name: NSNotification.Name.UIDeviceOrientationDidChange,
-      object: nil)
+                                           selector: #selector(handleRotation(_:)),
+                                           name: NSNotification.Name.UIDeviceOrientationDidChange,
+                                           object: nil)
   }
-
+  
   func didReloadAssets(_ notification: Notification) {
     adjustButtonTitle(notification)
     galleryView.collectionView.reloadData()
     galleryView.collectionView.setContentOffset(CGPoint.zero, animated: false)
   }
-
+  
   func volumeChanged(_ notification: Notification) {
     guard let slider = volumeView.subviews.filter({ $0 is UISlider }).first as? UISlider,
       let userInfo = (notification as NSNotification).userInfo,
       let changeReason = userInfo["AVSystemController_AudioVolumeChangeReasonNotificationParameter"] as? String
       , changeReason == "ExplicitVolumeChange" else { return }
-
+    
     slider.setValue(volume, animated: false)
     takePicture()
   }
-
+  
   func adjustButtonTitle(_ notification: Notification) {
     guard let sender = notification.object as? ImageStack else { return }
-
+    
     let title = !sender.assets.isEmpty ?
       Configuration.doneButtonTitle : Configuration.cancelButtonTitle
     bottomContainer.doneButton.setTitle(title, for: UIControlState())
   }
-
+  
   // MARK: - Helpers
-
+  
   open override var prefersStatusBarHidden : Bool {
     return true
   }
-
+  
   open func collapseGalleryView(_ completion: (() -> Void)?) {
     galleryView.collectionViewLayout.invalidateLayout()
     UIView.animate(withDuration: 0.3, animations: {
-        if self.previousSize == GestureConstants.minimumHeight {
-            self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
-        } else {
-            self.updateGalleryViewFrames(GestureConstants.minimumHeight)
-        }
-
+      if self.previousSize == GestureConstants.minimumHeight {
+        self.updateGalleryViewFrames(self.galleryView.topSeparator.frame.height)
+      } else {
+        self.updateGalleryViewFrames(GestureConstants.minimumHeight)
+      }
+      
       self.galleryView.collectionView.transform = CGAffineTransform.identity
       self.galleryView.collectionView.contentInset = UIEdgeInsets.zero
       }, completion: { _ in
         self.delegate?.galleryViewDidCollapse()
         completion?()
-    }) 
+    })
   }
-
+  
   open func showGalleryView() {
     galleryView.collectionViewLayout.invalidateLayout()
     UIView.animate(withDuration: 0.3, animations: {
@@ -307,12 +307,27 @@ open class ImagePickerController: UIViewController {
     })
   }
   
-  open func fetchPhotos() {
-      galleryView.fetchPhotos() {
-        guard let asset = self.galleryView.assets.first else { return }
-        self.resetAssets()
-        self.stack.pushAsset(asset)
-      }
+  open func fetchPhotos(_ completion: (() -> Void)? = nil) {
+    guard let collectionSize = galleryView.collectionSize else { return }
+    
+    galleryView.fetchPhotos() {
+      guard let asset = self.galleryView.assets.first else { return }
+      self.resetAssets()
+      self.stack.pushAsset(asset)
+      completion?()
+    }
+    galleryView.shouldTransform = true
+    bottomContainer.pickerButton.isEnabled = true
+    
+    //    UIView.animate(withDuration: 0.3, animations: {
+    //        self.galleryView.collectionView.transform = CGAffineTransform(translationX: collectionSize.width, y: 0)
+    //        }, completion: { _ in
+    //        self.galleryView.collectionView.transform = CGAffineTransform.identity
+    //
+    //        self.galleryView.collectionView.reloadData()
+    //        self.galleryView.collectionView.setContentOffset(CGPoint.zero, animated: false)
+    //        completion?()
+    //    })
   }
   
   open func enableGalleryGesturess(_ enabled: Bool) {
@@ -381,77 +396,78 @@ extension ImagePickerController: BottomContainerViewDelegate {
     } else {
       images = AssetManager.resolveAssets(stack.assets)
     }
-
+    
     delegate?.doneButtonDidPress(self, images: images)
   }
-
+  
   func cancelButtonDidPress() {
     dismiss(animated: true, completion: nil)
     delegate?.cancelButtonDidPress(self)
   }
-
+  
   func imageStackViewDidPress() {
     var images: [UIImage]
     if let preferredImageSize = preferredImageSize {
-        images = AssetManager.resolveAssets(stack.assets, size: preferredImageSize)
+      images = AssetManager.resolveAssets(stack.assets, size: preferredImageSize)
     } else {
-        images = AssetManager.resolveAssets(stack.assets)
+      images = AssetManager.resolveAssets(stack.assets)
     }
-
+    
     delegate?.wrapperDidPress(self, images: images)
   }
 }
 
 extension ImagePickerController: CameraViewDelegate {
-
+  
   func setFlashButtonHidden(_ hidden: Bool) {
     topView.flashButton.isHidden = hidden
   }
-
+  
   func videoDidSaveInPath(path: URL) {
     self.delegate?.videoDidSaveInPath(path: path)
+    //expandGalleryView()
   }
   
   func imageToLibrary() {
-//    guard let collectionSize = galleryView.collectionSize else { return }
-//
-//    galleryView.fetchPhotos() {
-//      guard let asset = self.galleryView.assets.first else { return }
-//      self.stack.pushAsset(asset)
-//    }
-//    galleryView.shouldTransform = true
+    //    guard let collectionSize = galleryView.collectionSize else { return }
+    //
+    //    galleryView.fetchPhotos() {
+    //      guard let asset = self.galleryView.assets.first else { return }
+    //      self.stack.pushAsset(asset)
+    //    }
+    //    galleryView.shouldTransform = true
     bottomContainer.pickerButton.isEnabled = true
-//
-//    UIView.animate(withDuration: 0.3, animations: {
-//      self.galleryView.collectionView.transform = CGAffineTransform(translationX: collectionSize.width, y: 0)
-//      }, completion: { _ in
-//        self.galleryView.collectionView.transform = CGAffineTransform.identity
-//    }) 
+    //
+    //    UIView.animate(withDuration: 0.3, animations: {
+    //      self.galleryView.collectionView.transform = CGAffineTransform(translationX: collectionSize.width, y: 0)
+    //      }, completion: { _ in
+    //        self.galleryView.collectionView.transform = CGAffineTransform.identity
+    //    })
   }
-
+  
   func cameraNotAvailable() {
     topView.flashButton.isHidden = true
     topView.rotateCamera.isHidden = true
     bottomContainer.pickerButton.isEnabled = false
   }
-
+  
   // MARK: - Rotation
-
+  
   open override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
     return .portrait
   }
-
+  
   public func handleRotation(_ note: Notification) {
     let rotate = Helper.rotationTransform()
-
+    
     UIView.animate(withDuration: 0.25, animations: {
       [self.topView.rotateCamera, self.bottomContainer.pickerButton,
-        self.bottomContainer.stackView, self.bottomContainer.doneButton].forEach {
+       self.bottomContainer.stackView, self.bottomContainer.doneButton].forEach {
         $0.transform = rotate
       }
-
+      
       self.galleryView.collectionViewLayout.invalidateLayout()
-
+      
       let translate: CGAffineTransform
       if [UIDeviceOrientation.landscapeLeft, UIDeviceOrientation.landscapeRight]
         .contains(UIDevice.current.orientation) {
