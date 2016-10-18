@@ -9,6 +9,7 @@ import Photos
   func cancelButtonDidPress(_ imagePicker: ImagePickerController)
   func galleryViewDidCollapse()
   func galleryViewDidExpand()
+  func videoDidSaveInPath(path: URL)
 }
 
 open class ImagePickerController: UIViewController {
@@ -383,6 +384,10 @@ extension ImagePickerController: CameraViewDelegate {
     topView.flashButton.isHidden = hidden
   }
 
+  func videoDidSaveInPath(path: URL) {
+    self.delegate?.videoDidSaveInPath(path: path)
+  }
+  
   func imageToLibrary() {
 //    guard let collectionSize = galleryView.collectionSize else { return }
 //

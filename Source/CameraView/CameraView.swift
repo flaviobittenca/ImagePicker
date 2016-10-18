@@ -7,14 +7,10 @@ protocol CameraViewDelegate: class {
   func setFlashButtonHidden(_ hidden: Bool)
   func imageToLibrary()
   func cameraNotAvailable()
+  func videoDidSaveInPath(path : URL)
 }
 
 class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate  {
-  
-  internal func videoFinished(withFileURL fileURL: URL) {
-    
-  }
-
 
   lazy var blurView: UIVisualEffectView = { [unowned self] in
     let effect = UIBlurEffect(style: .dark)
@@ -277,4 +273,9 @@ class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate
   func cameraManDidStart(_ cameraMan: CameraMan) {
     setupPreviewLayer()
   }
+  
+  internal func videoFinished(withFileURL fileURL: URL) {
+   self.delegate?.videoDidSaveInPath(path: fileURL)
+  }
+
 }
