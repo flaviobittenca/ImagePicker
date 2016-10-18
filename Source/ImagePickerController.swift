@@ -306,6 +306,27 @@ open class ImagePickerController: UIViewController {
         self.delegate?.galleryViewDidExpand()
     })
   }
+  
+  open func fetchPhotos() {
+      galleryView.fetchPhotos() {
+        guard let asset = self.galleryView.assets.first else { return }
+        self.resetAssets()
+        self.stack.pushAsset(asset)
+      }
+  }
+  
+  open func enableGalleryGesturess(_ enabled: Bool) {
+    if enabled {
+      self.galleryView.isHidden = false
+    }
+    UIView.animate(withDuration: 0.3, animations: {
+      self.galleryView.alpha = enabled ? 1 : 0
+      }, completion: { _ in
+        if !enabled {
+          self.galleryView.isHidden = true
+        }
+    })
+  }
 
   func updateGalleryViewFrames(_ constant: CGFloat) {
     galleryView.frame.origin.y = totalSize.height - constant
@@ -340,6 +361,9 @@ open class ImagePickerController: UIViewController {
       action()
     }
   }
+  
+  
+  
 }
 
 // MARK: - Action methods
