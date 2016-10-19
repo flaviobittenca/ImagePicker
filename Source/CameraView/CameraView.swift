@@ -275,7 +275,12 @@ class CameraView: UIViewController, CLLocationManagerDelegate, CameraManDelegate
   }
   
   func cameraMan(_ cameraMan: CameraMan, didChangeInput input: AVCaptureDeviceInput) {
-    delegate?.setFlashButtonHidden(!input.device.hasFlash)
+    if input.device.position == .front {
+      delegate?.setFlashButtonHidden(true)
+    } else {
+      delegate?.setFlashButtonHidden(!input.device.hasFlash)
+    }
+    
   }
   
   func cameraManDidStart(_ cameraMan: CameraMan) {

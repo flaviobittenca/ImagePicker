@@ -35,6 +35,13 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   
   func setupDevices() {
     // Input
+    if let audioDevice = AVCaptureDevice.devices(withMediaType: AVMediaTypeAudio).first as? AVCaptureDevice {
+      audioInput = try? AVCaptureDeviceInput(device: audioDevice)
+      //        if session.canAddInput(audioDeviceInput) ?? false {
+      //            session.addInput(audioDeviceInput)
+      //        }
+    }
+    
     AVCaptureDevice
       .devices().flatMap {
         return $0 as? AVCaptureDevice
@@ -51,12 +58,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
         }
     }
     
-    if let audioDevice = AVCaptureDevice.devices(withMediaType: AVMediaTypeAudio).first as? AVCaptureDevice {
-      audioInput = try? AVCaptureDeviceInput(device: audioDevice)
-      //        if session.canAddInput(audioDeviceInput) ?? false {
-      //            session.addInput(audioDeviceInput)
-      //        }
-    }
+    
     
     // Output
     videoOutput = AVCaptureMovieFileOutput()
@@ -100,7 +102,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo) { granted in
       DispatchQueue.main.async {
         if granted {
-          self.checkPermissionAudio()
+          self.requestPermissionAudio()
         } else {
           self.delegate?.cameraManNotAvailable(self)
         }
@@ -108,7 +110,7 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     }
   }
   
-  func checkPermissionAudio() {
+  func requestPermissionAudio() {
     let status = AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeAudio)
     
     switch status {
@@ -124,6 +126,12 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
   // MARK: - Session
   
   var currentInput: AVCaptureDeviceInput? {
+    for deviceInput in session.inputs {
+      if deviceInput as? AVCaptureDeviceInput != self.audioInput  {
+        
+        return deviceInput as? AVCaptureDeviceInput
+      }
+    }
     return session.inputs.first as? AVCaptureDeviceInput
   }
   
@@ -133,8 +141,9 @@ class CameraMan : NSObject, AVCaptureFileOutputRecordingDelegate {
     
     guard let input = backCameraInput, let output = videoOutput else { return }
     
-    addInput(input)
     addInput(audioInput!)
+    addInput(input)
+    
     
     if session.canAddOutput(output) {
       session.addOutput(output)
